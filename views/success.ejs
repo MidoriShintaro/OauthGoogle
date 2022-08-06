@@ -22,13 +22,14 @@
                 <div class="col-sm-6">
                     <div class="well">
                         <p>
-                            <strong>Id</strong>: <%= userProfile.id %><br>
-                                <strong>Email</strong>: <%= userProfile.emails[0].value %><br>
-                                    <strong>Name</strong>: <%= userProfile.displayName %>
+                            <strong>Id</strong>: <%= user.id %><br>
+                                <strong>Email</strong>: <%= user.email %><br>
+                                    <strong>Name</strong>: <%= user.name %>
                         </p>
                     </div>
                 </div>
             </div>
+            <a href="/logout" class="btn btn-primary">Logout</a>
         </div>
     </div>
 </body>

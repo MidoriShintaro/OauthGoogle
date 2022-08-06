@@ -7,10 +7,10 @@ const passport = require("passport");
 const mongoose = require("mongoose");
 const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
 const User = require("./model/user.js");
+const userRoutes = require("./routes/user");
 const dburi = process.env.DBURI;
 const GOOGLE_CLIENT_ID = process.env.GGCLIENTID;
 const GOOGLE_CLIENT_SECRET = process.env.GGCLIENTSECRET;
-let userProfile;
 
 mongoose.connect(dburi).then(() => console.log("DB connected"));
 
@@ -35,8 +35,7 @@ passport.use(
       callbackURL: "http://localhost:3000/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
-      userProfile = profile;
-      const curUser = await User.findOne({ GoogleId: profile.id })
+      const curUser = await User.findOne({ GoogleId: profile.id });
       if (curUser) {
         return done(null, curUser);
       } else {
@@ -44,8 +43,8 @@ passport.use(
           GoogleId: profile.id,
           name: profile.name.familyName + " " + profile.name.givenName,
           email: profile.emails[0].value,
-        }).save()
-        return done(null, newUser)
+        }).save();
+        return done(null, newUser);
       }
     }
   )
@@ -61,29 +60,6 @@ passport.deserializeUser((id, done) => {
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/error" }),
-  function (req, res) {
-    // Successful authentication, redirect success.
-    res.redirect("/success");
-  }
-);
-
-app.get("/", function (req, res) {
-  res.render("auth");
-});
-
-app.get("/success", (req, res) => {
-  res.render("success", { userProfile });
-});
-app.get("/error", (req, res) => res.send("error logging in"));
-
+app.use("/", userRoutes);
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log("App listening on port " + port));
